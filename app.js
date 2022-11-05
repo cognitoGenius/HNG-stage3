@@ -17,17 +17,18 @@ app.post('/', (req, res, next) => {
     //valid operations
     const operations = ['addition', 'subtraction', 'multiplication']
 
-    //bonus task handler array
-    // const specialTerms = ['add', 'sum', 'difference', 'subtract', 'take-away', 'take away', 'multiply', 'product', ]
+    //bonus task handler array - contains base words for the expected operations and thier different variations in english
+    const specialTerms = ['add', 'sum', 'plus', 'difference', 'subtract', 'remove', 'take-away', 'take away', 'multipl', 'product', 'times']
 
-    //The two if blocks below validate that the entry is expected and sends back a response if not
-    if (!operationType || !operations.includes(operationType)) {
+    //Checks for invalid operation type - falsy value entries
+    if (!operationType) {
         res.status(400).json({
             status: 'fail',
             message: "Invalid operation type"
         })
         return
     }
+    //Ensures that value entered is of type number and is an integer
     if (typeof integerX !== 'number' || typeof integerY !== 'number' || !Number.isInteger(integerX) || !Number.isInteger(integerY)) {
         res.status(400).json({
             status: 'fail',
@@ -35,26 +36,34 @@ app.post('/', (req, res, next) => {
         })
         return
     }
-    // if (!operations.includes(operationType)) {
-    //     let which = ''
-    //     let specTerm = specialTerms.some((each, index) => {
-    //         if( operationType.includes(each)){
-    //             which = each;
-
-    //         }
-    //     })
-    //     if (specTerm) {
-    //         console.log(specialTerms.indexOf(specTerm))
-    //         if (specialTerms.indexOf(specTerm) === 0 || specialTerms.indexOf(specTerm) === 1) operationType = 'addition'
-    //         else if (specialTerms.indexOf(specTerm) === 6 || specialTerms.indexOf(specTerm) === 7) operationType = 'multiplication'
-    //         else operationType = 'subtraction'
-    //     }
-    // }
+    //This block checks for case where a phrase is entered in operation_type field - Attempts to parse said string
+    if (!operations.includes(operationType)) {
+        let which = ''
+        let specTerm = specialTerms.some((each) => {
+            if (operationType.includes(each)) which = each;
+            return operationType.includes(each)
+        })
+        // console.log(specTerm)
+        if (specTerm) {
+            // console.log(specialTerms.indexOf(which))
+            let opType = specialTerms.indexOf(which)
+            if (opType === 0 || opType === 1 || opType === 2) operationType = 'addition'
+            else if (opType === 8 || opType === 10 || opType === 9) operationType = 'multiplication'
+            else operationType = 'subtraction'
+        }
+    }
 
     //Perform operation based on validated input
     if (operations.indexOf(operationType) === 0) result = integerX + integerY
     else if (operations.indexOf(operationType) === 1) result = integerX - integerY
-    else result = integerX * integerY
+    else if (operations.indexOf(operationType) === 2) result = integerX * integerY
+    else {
+        res.status(400).json({
+            status: 'fail',
+            message: 'Operation type cannot be parsed by server'
+        })
+        return
+    }
 
     //Return results
     res.status(200).json({
