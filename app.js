@@ -68,8 +68,9 @@ app.post('/', (req, res, next) => {
     //Return results
     res.status(200).json({
         slackUsername: 'Tommy',
-        operation_type: operationType,
-        result
+        result,
+        operation_type: operationType
+
     })
 })
 
